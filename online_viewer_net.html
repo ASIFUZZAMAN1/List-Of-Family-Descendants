@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হাজিপাড়া, সেরুডাঙ্গা - বংশ তালিকা</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Nirmala UI', 'Kalpurush', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-print {
+            background: #27ae60;
+        }
+        
+        .btn-print:hover {
+            background: #219653;
+        }
+        
+        .tree-container {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: auto;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .tree {
+            display: flex;
+            min-width: 2000px;
+            padding: 40px 0;
+            position: relative;
+        }
+        
+        .generation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 280px;
+            position: relative;
+            margin-right: 20px;
+        }
+        
+        .generation:last-child {
+            margin-right: 0;
+        }
+        
+        .generation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--secondary), transparent);
+            z-index: 0;
+        }
+        
+        .person-card {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 10px;
+            width: 250px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 2;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            cursor: pointer;
+        }
+        
+        .person-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+            border-color: var(--secondary);
+        }
+        
+        .person-card.focus {
+            background: linear-gradient(145deg, #1a5276, #2c3e50);
+            box-shadow: 0 0 0 3px var(--secondary), 0 12px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .person-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .person-details {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #3498db;
+        }
+        
+        .detail-value {
+            text-align: right;
+        }
+        
+        .connector {
+            position: absolute;
+            background: var(--secondary);
+            z-index: 1;
+        }
+        
+        .horizontal-connector {
+            height: 2px;
+        }
+        
+        .vertical-connector {
+            width: 2px;
+        }
+        
+        .generation-label {
+            position: sticky;
+            top: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 3;
+        }
+        
+        .info-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-title {
+            font-size: 1.8rem;
+            color: #f1c40f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .info-content {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .highlight {
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 1200px) {
+            .tree {
+                min-width: 1800px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .tree {
+                min-width: 1600px;
+            }
+            
+            .person-card {
+                width: 230px;
+                padding: 15px;
+            }
+            
+            .generation {
+                min-width: 260px;
+            }
+        }
+        
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: none;
+        }
+        
+        .zoom-indicator {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+            z-index: 100;
+        }
+        
+        .scroll-hint {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(231, 76, 60, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 30px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: translateY(-50%) translateX(0); }
+            50% { opacity: 1; transform: translateY(-50%) translateX(-10px); }
+            100% { opacity: 0.7; transform: translateY(-50%) translateX(0); }
+        }
+        
+        .current-generation {
+            background: rgba(39, 174, 96, 0.3);
+            border: 2px solid #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>হাজিপাড়া, সেরুডাঙ্গা - বংশ তালিকা</h1>
+            <div class="subtitle">
+                রংপুর বিভাগ, রংপুর জেলা, মিঠাপুকুর উপজেলা, ১৫ নং হযরতপুর ইউনিয়ন, ৩ নং ওয়ার্ড
+            </div>
+        </header>
+        
+        <div class="controls">
+            <button class="btn" id="zoomInBtn">
+                <i>🔍</i> জুম ইন
+            </button>
+            <button class="btn" id="zoomOutBtn">
+                <i>🔍</i> জুম আউট
+            </button>
+            <button class="btn btn-print" id="pdfBtn">
+                <i>💾</i> PDF সংরক্ষণ করুন
+            </button>
+            <button class="btn" id="scrollToCurrentBtn">
+                <i>➡️</i> বর্তমান প্রজন্মে যান
+            </button>
+        </div>
+        
+        <div class="tree-container" id="treeContainer">
+            <div class="tree" id="familyTree">
+                <!-- Generations will be inserted by JavaScript -->
+            </div>
+            <div class="scroll-hint" id="scrollHint">
+                <span>➡️</span> ডান দিকে স্ক্রোল করুন
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h2 class="info-title">পরিবার ইতিহাসের তথ্যাবলী</h2>
+            <div class="info-content">
+                <p>এই বংশ তালিকাটি <span class="highlight">হাজিপাড়া, সেরুডাঙ্গা গ্রামের</span> পরিবারের ঐতিহাসিক ধারাবাহিকতা প্রদর্শন করছে। মূল পূরুষ <span class="highlight">নেওয়াজ মামুন গুলজার প্রামানিক</span> (১৮২০) থেকে শুরু করে বর্তমান প্রজন্ম পর্যন্ত এই বংশের বিস্তার দেখানো হয়েছে।</p>
+                <p>এই তালিকায় শুধুমাত্র জন্ম সাল এবং সন্তানদের সম্পর্কিত তথ্য প্রদর্শিত হয়েছে। অন্যান্য বিবরণ ইচ্ছাকৃতভাবে বাদ দেওয়া হয়েছে।</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="zoom-controls">
+        <div class="zoom-indicator" id="zoomIndicator">জুম: 100%</div>
+        <button class="zoom-btn" id="zoomInFixed">+</button>
+        <button class="zoom-btn" id="zoomOutFixed">-</button>
+        <button class="zoom-btn" id="resetZoomBtn">↺</button>
+    </div>
+
+    <script>
+        // Updated family data without death dates and relations
+        const familyData = [
+            {
+                generation: "প্রজন্ম ১ (১৮২০)",
+                people: [
+                    {
+                        name: "নেওয়াজ মামুন গুলজার প্রামানিক",
+                        birth: "১৮২০",
+                        children: "৮ পুত্র"
+                    }
+                ]
+            },
+            {
+                generation: "প্রজন্ম ২ (১৮৬০-১৮৮০)",
+                people: [
+                    {name: "আছিম উল্ল্যাহ", birth: "১৮৬০"},
+                    {name: "বাহার উদ্দিন", birth: "১৮৬৫"},
+                    {name: "খাজের উদ্দিন", birth: "১৮৬৮"},
+                    {
+                        name: "আলিমুদ্দিন",
+                        birth: "১৮৮০",
+                        children: "৪ পুত্র",
+                        focus: true
+                    },
+                    {name: "নেজাম উদ্দিন", birth: "১৮৮৩"},
+                    {name: "আব্দুল গফুর", birth: "১৮৮৬"},
+                    {name: "খেরাজ উদ্দিন", birth: "১৮৮৯"},
+                    {name: "মনির উদ্দিন", birth: "১৮৯২"}
+                ]
+            },
+            {
+                generation: "প্রজন্ম ৩ (১৯১০-১৯৩৫)",
+                people: [
+                    {name: "আব্দুল হান্নান", birth: "১৯১০"},
+                    {name: "এলাহি বকস", birth: "১৯১৫"},
+                    {
+                        name: "মুসা তালুকদার",
+                        birth: "১৯৩৫",
+                        children: "৯ পুত্র",
+                        focus: true
+                    },
+                    {name: "নজরুল ইসলাম", birth: "১৯৪০"}
+                ]
+            },
+            {
+                generation: "প্রজন্ম ৪ (১৯৬০-১৯৯৫)",
+                people: [
+                    {name: "তাহমিদুজ্জামান", birth: "১৯৬০"},
+                    {name: "তৌহিদুজ্জামান", birth: "১৯৬৩"},
+                    {name: "ওয়াহিদুজ্জামান", birth: "১৯৬৬"},
+                    {name: "এরশাদুজ্জামান", birth: "১৯৬৯"},
+                    {name: "তারেকুজ্জামান", birth: "১৯৭২"},
+                    {name: "সোহেব আরাফাত", birth: "১৯৭৫"},
+                    {name: "শরিফুজ্জামান", birth: "১৯৭৮"},
+                    {name: "আসাদুজ্জামান", birth: "১৯৮১"},
+                    {
+                        name: "আসিফুজ্জামান",
+                        birth: "১৯৯৫",
+                        children: "২ পুত্র",
+                        focus: true
+                    }
+                ]
+            },
+            {
+                generation: "প্রজন্ম ৫ (২০১৯-বর্তমান)",
+                people: [
+                    {
+                        name: "মোহাম্মদ আল মুদ্দাসসির",
+                        birth: "২০১৯",
+                        current: true
+                    },
+                    {
+                        name: "মুসনাদুজ্জামান আয়মান",
+                        birth: "২০২৪",
+                        current: true
+                    }
+                ]
+            }
+        ];
+
+        // Initialize family tree
+        function renderFamilyTree() {
+            const treeElement = document.getElementById('familyTree');
+            treeElement.innerHTML = '';
+            
+            familyData.forEach((generationData, genIndex) => {
+                const genElement = document.createElement('div');
+                genElement.className = 'generation';
+                
+                const label = document.createElement('div');
+                label.className = 'generation-label';
+                if (genIndex === familyData.length - 1) {
+                    label.classList.add('current-generation');
+                }
+                label.textContent = generationData.generation;
+                genElement.appendChild(label);
+                
+                generationData.people.forEach((person, personIndex) => {
+                    const personCard = document.createElement('div');
+                    personCard.className = 'person-card';
+                    if (person.focus) personCard.classList.add('focus');
+                    if (person.current) personCard.classList.add('current-generation');
+                    
+                    let detailsHTML = `
+                        <div class="person-name">${person.name}</div>
+                        <div class="person-details">
+                            <div class="detail-item">
+                                <span class="detail-label">জন্ম:</span>
+                                <span class="detail-value">${person.birth}</span>
+                            </div>
+                    `;
+                    
+                    if (person.children) {
+                        detailsHTML += `
+                            <div class="detail-item">
+                                <span class="detail-label">সন্তান:</span>
+                                <span class="detail-value">${person.children}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    if (person.current) {
+                        detailsHTML += `
+                            <div class="detail-item">
+                                <span class="detail-label">অবস্থা:</span>
+                                <span class="detail-value">বর্তমান প্রজন্ম</span>
+                            </div>
+                        `;
+                    }
+                    
+                    detailsHTML += `</div>`;
+                    personCard.innerHTML = detailsHTML;
+                    genElement.appendChild(personCard);
+                });
+                
+                treeElement.appendChild(genElement);
+            });
+            
+            // Hide scroll hint after rendering
+            setTimeout(() => {
+                document.getElementById('scrollHint').style.display = 'none';
+            }, 5000);
+        }
+
+        // Zoom functionality
+        let scale = 1;
+        const treeContainer = document.querySelector('.tree-container');
+        const zoomIndicator = document.getElementById('zoomIndicator');
+        
+        function updateZoom() {
+            treeContainer.style.transform = `scale(${scale})`;
+            zoomIndicator.textContent = `জুম: ${Math.round(scale * 100)}%`;
+        }
+        
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+            scale = Math.min(scale + 0.1, 1.5);
+            updateZoom();
+        });
+        
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+            scale = Math.max(scale - 0.1, 0.7);
+            updateZoom();
+        });
+        
+        document.getElementById('zoomInFixed').addEventListener('click', () => {
+            scale = Math.min(scale + 0.1, 1.5);
+            updateZoom();
+        });
+        
+        document.getElementById('zoomOutFixed').addEventListener('click', () => {
+            scale = Math.max(scale - 0.1, 0.7);
+            updateZoom();
+        });
+        
+        document.getElementById('resetZoomBtn').addEventListener('click', () => {
+            scale = 1;
+            updateZoom();
+        });
+        
+        // Scroll to current generation
+        document.getElementById('scrollToCurrentBtn').addEventListener('click', () => {
+            const treeElement = document.getElementById('familyTree');
+            treeContainer.scrollLeft = treeContainer.scrollWidth;
+        });
+
+        // PDF Generation
+        document.getElementById('pdfBtn').addEventListener('click', () => {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: 'হাজিপাড়া_বংশ_তালিকা.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
+            };
+            
+            // Show alert
+            alert('PDF তৈরি করা হচ্ছে... কিছুক্ষণ অপেক্ষা করুন। প্রক্রিয়া সম্পন্ন হলে এটি স্বয়ংক্রিয়ভাবে ডাউনলোড হবে।');
+            
+            html2pdf().set(opt).from(element).save();
+        });
+
+        // Initialize on load
+        window.onload = function() {
+            renderFamilyTree();
+            updateZoom();
+            
+            // Scroll to show the current generation after a delay
+            setTimeout(() => {
+                treeContainer.scrollLeft = treeContainer.scrollWidth;
+            }, 500);
+        };
+    </script>
+</body>
+</html>
